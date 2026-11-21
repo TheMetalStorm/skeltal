@@ -1,0 +1,150 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "ChatGPT minimal animation example"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0,
+        4,
+        5
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "MainRoot",
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "children": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "name": "MainChild_Left",
+      "translation": [
+        -4,
+        5,
+        0
+      ]
+    },
+    {
+      "name": "MainChild_Top",
+      "translation": [
+        0,
+        7,
+        0
+      ]
+    },
+    {
+      "name": "MainChild_Right",
+      "translation": [
+        4,
+        5,
+        0
+      ]
+    },
+    {
+      "name": "FloatingRoot_Left",
+      "translation": [
+        -15,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "FloatingRoot_Right",
+      "translation": [
+        15,
+        0,
+        0
+      ],
+      "children": [
+        6,
+        7
+      ]
+    },
+    {
+      "name": "FloatingChild_Left",
+      "translation": [
+        -4,
+        5,
+        0
+      ]
+    },
+    {
+      "name": "FloatingChild_Right",
+      "translation": [
+        4,
+        5,
+        0
+      ]
+    }
+  ],
+  "animations": [
+    {
+      "name": "RightRoot_Swing",
+      "samplers": [
+        {
+          "input": 0,
+          "output": 1,
+          "interpolation": "LINEAR"
+        }
+      ],
+      "channels": [
+        {
+          "sampler": 0,
+          "target": {
+            "node": 5,
+            "path": "rotation"
+          }
+        }
+      ]
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "data:application/octet-stream;base64,AAAAAAAAgD8AAABAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAA8wQ1P/MENT8AAAAAAAAAAAAAAAAAAIA/",
+      "byteLength": 60
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 12
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 12,
+      "byteLength": 48
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 3,
+      "type": "SCALAR",
+      "min": [
+        0
+      ],
+      "max": [
+        2
+      ]
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 3,
+      "type": "VEC4"
+    }
+  ]
+}

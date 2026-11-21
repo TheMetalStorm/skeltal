@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "name": "MainRoot",
+      "translation": [0, 0, 0],
+      "children": [1, 2, 3]
+    },
+    {
+      "name": "MainChild_Left",
+      "translation": [-4, 5, 0]
+    },
+    {
+      "name": "MainChild_Top",
+      "translation": [0, 7, 0]
+    },
+    {
+      "name": "MainChild_Right",
+      "translation": [4, 5, 0]
+    },
+    {
+      "name": "FloatingRoot_Left",
+      "translation": [-15, 0, 0]
+    },
+    {
+      "name": "FloatingRoot_Right",
+      "translation": [15, 0, 0],
+      "rotation": [0, 0, 0.70710678, 0.70710678],
+      "children": [6, 7]
+    },
+    {
+      "name": "FloatingChild_Left",
+      "translation": [-4, 5, 0]
+    },
+    {
+      "name": "FloatingChild_Right",
+      "translation": [4, 5, 0]
+    }
+  ]
+}
