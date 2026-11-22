@@ -19,65 +19,11 @@ Bone :: struct {
 Skeleton :: struct {
 	root: ^Bone ,
 	other_bones: [dynamic]^Bone,
-	animations: [dynamic]^Animation,
+	keyframes: [dynamic]^Keyframe,
 }
 
-Animation :: struct {
-    name: string,
-    samplers: [dynamic]^Sampler,
-    channels: [dynamic]^Channel,
-	accessors: [dynamic]^Accessor,
-	buffers: [dynamic]^Buffer,
-	bufferView: [dynamic]^BufferView,
-}
-
-Sampler :: struct {
-    input: int,
-    interpolation: string,
-    output: int,
-}
-
-Channel :: struct {
-    sampler: int,
-    target_node: int,
-    target_path: string,
-}
-
-Accessor :: struct {
-	buffer_view: int,
-	byte_offset: int,
-	component_type: int,
-	count: int,
-	type_: string,
-	min: [dynamic]f64,
-	max: [dynamic]f64,
-	normalized: bool
-}
-BufferView :: struct {
-	// mandatory
-	buffer:	int,	
-	byteLength:	int,	
+Keyframe :: struct {
 	
-	// optional
-	// TODO: implement optional
-	// byteOffset:	int,	
-	// byteStride:	int,	
-	// target:	int,	
-	// name:	string,
-	// extensions:	Object,
-	// extras:	Any,
-}
-
-Buffer :: struct {
-	// required
-	byteLength: int,
-
-	// optional
-	// TODO: implement optional
-	// uri:	String,
-	//name:	string,
-	// extensions:	JSON.Object,
-	// extras:	Any,
 }
 
 
