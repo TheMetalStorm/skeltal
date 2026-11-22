@@ -6,23 +6,7 @@ import "core:fmt"
 import "core:math/linalg"
 import "core:os"
 
-Animation :: struct {
-    name: string,
-    samplers: [dynamic]^Sampler,
-    channels: [dynamic]^Channel,
-}
 
-Sampler :: struct {
-    input: int,
-    interpolation: string,
-    output: int,
-}
-
-Channel :: struct {
-    sampler: int,
-    target_node: int,
-    target_path: string,
-}
 
 
 load_from_gltf :: proc(path: string, alloc := context.allocator) -> ^skeltal.Skeleton {
@@ -73,9 +57,9 @@ load_from_gltf :: proc(path: string, alloc := context.allocator) -> ^skeltal.Ske
 
 }
 
-load_animation_from_json :: proc(json_data: json.Value, skeleton: ^skeltal.Skeleton, alloc := context.allocator) -> [dynamic]^Animation {
+load_animation_from_json :: proc(json_data: json.Value, skeleton: ^skeltal.Skeleton, alloc := context.allocator) -> [dynamic]^skeltal.Animation {
 
-    res_animations := [dynamic]^Animation{}
+    res_animations := [dynamic]^skeltal.Animation{}
 
     animations := json_data.(json.Object)["animations"]
 	if animations == nil {
@@ -92,7 +76,7 @@ load_animation_from_json :: proc(json_data: json.Value, skeleton: ^skeltal.Skele
 
     for animation_data in animation_data_array {
         animation_data_obj := animation_data.(json.Object)
-        animation_instance := new(Animation, alloc)
+        animation_instance := new(skeltal.Animation, alloc)
 
         name := animation_data_obj["name"]
         if name == nil {
@@ -103,7 +87,7 @@ load_animation_from_json :: proc(json_data: json.Value, skeleton: ^skeltal.Skele
         name_string := name.(string)
         animation_instance.name = name_string
 
-        ret_sampler_array := [dynamic]^Sampler{}
+        ret_sampler_array := [dynamic]^skeltal.Sampler{}
         samplers := animation_data_obj["samplers"]
         if samplers == nil {
             fmt.println("INFO: JSON property 'samplers' not found in the glTF file.") 
@@ -120,7 +104,7 @@ load_animation_from_json :: proc(json_data: json.Value, skeleton: ^skeltal.Skele
             interpolation := sampler["interpolation"]
             output := sampler["output"] 
 
-            sampler_instance := new(Sampler, alloc)
+            sampler_instance := new(skeltal.Sampler, alloc)
             sampler_instance.input = int(input.(json.Float))
             sampler_instance.interpolation = interpolation.(json.String)
             sampler_instance.output = int(output.(json.Float))
@@ -128,7 +112,7 @@ load_animation_from_json :: proc(json_data: json.Value, skeleton: ^skeltal.Skele
         }
 
 
-        ret_channel_array := [dynamic]^Channel{}
+        ret_channel_array := [dynamic]^skeltal.Channel{}
         channels_data := animation_data_obj["channels"]
         if channels_data == nil {
             fmt.println("INFO: JSON property 'channels' not found in the glTF file.") 
@@ -155,7 +139,7 @@ load_animation_from_json :: proc(json_data: json.Value, skeleton: ^skeltal.Skele
             target_node := target["node"]
             target_path := target["path"]
 
-            channel_instance := new(Channel, alloc)
+            channel_instance := new(skeltal.Channel, alloc)
             channel_instance.sampler = int(sampler.(json.Float))
             channel_instance.target_node = int(target_node.(json.Float))
             channel_instance.target_path = target_path.(json.String)
@@ -163,13 +147,184 @@ load_animation_from_json :: proc(json_data: json.Value, skeleton: ^skeltal.Skele
             append(&ret_channel_array, channel_instance)
         }
 
+        accessors_data := animation_data_obj["accessors"]
+        if accessors_data == nil {
+            fmt.println("INFO: JSON property 'accessors' not found in the glTF file.") 
+        }
+
+        accessors_array := accessors_data.(json.Array)
+        if len(accessors_array) == 0 {
+            fmt.println("INFO: 0 accessors found in the glTF file.")
+        }
+
+        ret_accessors_array := [dynamic]^skeltal.Accessor{}
+        for accessor in accessors_array {
+            accessor_instance := new(skeltal.Accessor, alloc)
+            accessor_data := accessor.(json.Object)
+
+            // ComponentType is mandatory
+            component_type := accessor_data["componentType"]
+            if component_type == nil {
+                fmt.println("INFO: Accessor is missing componentType. It is mandatory.")
+                return nil
+            }
+            accessor_instance.component_type = int(component_type.(json.Float))
+
+
+            // count is mandatory
+            count := accessor_data["count"]
+            if count == nil {
+                fmt.println("INFO: Accessor is missing count. It is mandatory.")
+                return nil
+            }
+            c := int(count.(json.Float))
+            if c < 1 {
+                fmt.println("INFO: Count has to be bigger than one")
+                return nil
+            }
+            accessor_instance.count = c
+
+
+
+            // type is mandatory
+            type_ := accessor_data["type"]
+            if type_ == nil {
+                fmt.println("INFO: Accessor is missing type. It is mandatory.")
+                return nil
+            }
+            accessor_instance.type_ = type_.(json.String)
+
+
+
+            //Min
+            min := accessor_data["min"]
+            min_array := min.(json.Array)
+            for v in min_array {
+                append(&accessor_instance.min, v.(json.Float))
+            }
+
+
+            //Max
+            max := accessor_data["max"]
+            max_array := max.(json.Array)
+            for v in max_array{
+                append(&accessor_instance.max, v.(json.Float))
+            }
+
+
+            //Normalized: default false
+            normalized := accessor_data["normalized"]
+            if normalized == nil {
+                fmt.println("INFO: Accessor is missing normalized value. Setting default value to false.")
+                accessor_instance.normalized = false
+            }
+            else{
+                normalized_data := normalized.(json.Boolean)
+                accessor_instance.normalized = normalized_data
+            }
+
+
+            // buffer view
+            buffer_view := accessor_data["bufferView"]
+            if buffer_view == nil {
+                fmt.println("INFO: Accessor is missing bufferView value. Data will be initialized with ZEROES")
+                // TODO: implement this!!
+            }
+            else {
+                accessor_instance.buffer_view = int(buffer_view.(json.Float))
+                
+                // byte offset must not be present without bufferview: default 0 
+                byte_offset := accessor_data["byteOffset"]
+                if byte_offset == nil {
+                    fmt.println("INFO: Accessor is missing byteOffset value. Setting default value to 0.")
+                    accessor_instance.byte_offset = 0
+                }
+                else{
+                    accessor_instance.byte_offset = int(byte_offset.(json.Float))
+                }
+
+            }
+
+            log_unsupported_property(accessor_data, "sparse")
+            log_unsupported_property(accessor_data, "extensions")
+            log_unsupported_property(accessor_data, "extras")
+            append(&ret_accessors_array, accessor_instance)
+        }
+
+        ret_buffers_array := [dynamic]^skeltal.Buffer{}
+
+        buffers_data := animation_data_obj["buffers"]
+        if buffers_data == nil {
+            fmt.println("INFO: JSON property 'buffers' not found in the glTF file.")
+
+        }
+
+        buffers_array := buffers_data.(json.Array)
+
+        for b in buffers_array{
+            buffer_ptr := new(skeltal.Buffer, alloc)
+            buffer_object := b.(json.Object)
+            byteLength := buffer_object["byteLength"]
+            if (byteLength == nil) {
+                fmt.println("INFO: JSON property 'byteLength' not found in the glTF file.")
+            }
+            buffer_ptr.byteLength = int(byteLength.(json.Float))
+
+            log_unsupported_property(buffer_object, "uri")
+            log_unsupported_property(buffer_object, "name")
+            log_unsupported_property(buffer_object, "extensions")
+            log_unsupported_property(buffer_object, "extras")
+
+            append(&ret_buffers_array, buffer_ptr)
+        }
+
+  
+
+        ret_buffer_views_array := [dynamic]^skeltal.BufferView{}
+        buffer_views_array, _ := json_data.(json.Object)["bufferViews"].(json.Array)
+        for view in buffer_views_array {
+            view_object := view.(json.Object)
+            buffer, has_buffer := view_object["buffer"].(json.Float)
+            if !has_buffer {
+                fmt.println("INFO: BufferView requires the JSON property 'buffer'.")
+                return nil
+            }
+            byteLength, has_byte_length := view_object["byteLength"].(json.Float)
+            if !has_byte_length {
+                fmt.println("INFO: BufferView requires the JSON property 'byteLength'.")
+                return nil
+            }
+
+            view_ptr := new(skeltal.BufferView, alloc)
+            view_ptr.buffer = int(buffer)
+            view_ptr.byteLength = int(byteLength)
+
+            log_unsupported_property(view_object, "byteOffset")
+            log_unsupported_property(view_object, "byteStride")
+            log_unsupported_property(view_object, "target")
+            log_unsupported_property(view_object, "name")
+            log_unsupported_property(view_object, "extensions")
+            log_unsupported_property(view_object, "extras")
+
+            append(&ret_buffer_views_array, view_ptr)
+        }
+
         animation_instance.samplers = ret_sampler_array
         animation_instance.channels = ret_channel_array
+        animation_instance.accessors = ret_accessors_array
+        animation_instance.buffers = ret_buffers_array
+        animation_instance.bufferView = ret_buffer_views_array
         append(&res_animations, animation_instance)
     }
 
     return res_animations
     
+}
+
+log_unsupported_property :: proc(object: json.Object, property: string) {
+    if _, present := object[property]; present {
+        fmt.printfln("INFO: JSON property '%s' is currently not supported. Skipping.", property)
+    }
 }
 
 load_skeleton_from_json :: proc(
