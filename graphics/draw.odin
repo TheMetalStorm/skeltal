@@ -51,7 +51,7 @@ main :: proc() {
 	// append(&elbow.children, wrist)
 	// skeleton := skeltal.new_skeleton(shoulder)
 
-     skeleton := glTF.load_from_gltf("graphics/glTF/example_animation.gltf", context.allocator)
+     skeleton := glTF.load_from_gltf("graphics/glTF/example_animation/three-roots-animated-external.gltf", context.allocator)
     if skeleton == nil {
         fmt.eprintln("Failed to load skeleton from glTF.")
         return
